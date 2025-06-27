@@ -60,7 +60,7 @@ Content-Type: application/json
 
 ### 2. Eğitim Bilgisi Ekle (POST /education)
 
-```
+```http
 POST /education
 Content-Type: application/json
 
@@ -76,7 +76,7 @@ Content-Type: application/json
 
 ### 3. Eğitimleri Listele (GET /user/education/:userId)
 
-```
+```http
 GET /user/education/1
 ```
 
