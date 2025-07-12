@@ -1,7 +1,7 @@
 import express from "express";
 import { PrismaClient } from "@prisma/client";
 import { SchoolType } from "@prisma/client";
-import { Request, Response } from "express";
+import e, { Request, Response } from "express";
 
 const app = express();
 const prisma = new PrismaClient();
@@ -11,10 +11,37 @@ app.listen(3000, () => {
   console.log("Server is running on http://localhost:3000");
 });
 
-app.post("/user", async (req, res) => {
+async function verifyExistUser(req: any): Promise<{ error: string } | null> {
+  let { email, username } = req.body;
+  const existingEmail = await prisma.user.findFirst({
+    where: {
+      email: email,
+    },
+  });
+  const existingUsername = await prisma.user.findFirst({
+    where: {
+      username: username,
+    },
+  });
+  if (existingEmail) {
+    return { error: "email adresi kullanılmaktadır." };
+  }
+  if (existingUsername) {
+    return { error: "username kullanılmaktadır." };
+  }
+  return null;
+}
+
+app.post("/user", async (req: any, res: any) => {
   const email: string = req.body.email;
   const username: string = req.body.username;
   const password: string = req.body.password;
+
+  const existUser = await verifyExistUser(req);
+  if (existUser) {
+    return res.status(400).json({ error: "Kayıt başarısız", details: existUser });
+    
+  }
 
   try {
     const user = await prisma.user.create({
