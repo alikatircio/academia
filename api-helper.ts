@@ -1,6 +1,17 @@
 import { SchoolType } from "@prisma/client";
 
 export class Helper {
+  async validateEmptyStrings(fields: {
+    [key: string]: string;
+  }): Promise<{ error: string } | null> {
+    for (const [fieldName, value] of Object.entries(fields)) {
+      if (!value || value.trim() === "") {
+        return { error: `${fieldName} alanı boş olamaz!` };
+      }
+    }
+    return null;
+  }
+
   async validateEmail(email: string): Promise<{ error: string } | null> {
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailPattern.test(email)) {
@@ -59,6 +70,21 @@ export class Helper {
     });
     if (existingEducation) {
       return { error: `Bu kullanıcıya ait zaten bir ${type} eğitimi mevcut!` };
+    }
+    return null;
+  }
+
+  async verifyUserExist(
+    id: number,
+    prisma: any
+  ): Promise<{ error: string } | null> {
+    const isUserExist = await prisma.user.findUnique({
+      where: { id },
+    });
+    if (!isUserExist) {
+      return {
+        error: `İlgili ${id} userId için kullanıcı bulunmamaktadır`,
+      };
     }
     return null;
   }

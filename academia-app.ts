@@ -12,24 +12,36 @@ app.listen(3000, () => {
   console.log("Server is running on http://localhost:3000");
 });
 
+function handleValidation(
+  res: Response,
+  result: { error: string } | null,
+  defaultMsg = "Kayıt başarısız"
+) {
+  if (result) {
+    res.status(400).json({ error: defaultMsg, details: result });
+    return true;
+  }
+  return false;
+}
+
 app.post("/user", async (req: any, res: any) => {
   const email: string = req.body.email;
   const username: string = req.body.username;
   const password: string = req.body.password;
 
+  const checkEmptyString = await helper.validateEmptyStrings({
+    email,
+    username,
+    password,
+  });
+
+  handleValidation(res, checkEmptyString);
+
   const validateEmail = await helper.validateEmail(email);
-  console.log(validateEmail);
-  if (validateEmail) {
-    return res
-      .status(400)
-      .json({ error: "Kayıt başarısız", details: validateEmail });
-  }
+  handleValidation(res, validateEmail);
+
   const existUser = await helper.verifyExistUser(req, prisma);
-  if (existUser) {
-    return res
-      .status(400)
-      .json({ error: "Kayıt başarısız", details: existUser });
-  }
+  handleValidation(res, existUser);
 
   try {
     const user = await prisma.user.create({
@@ -45,9 +57,10 @@ app.post("/education", async (req: any, res: any) => {
   let { type, city, department, year, userId } = req.body;
 
   const error = await helper.verifySchoolType(req, prisma);
-  if (error) {
-    return res.status(400).json(error);
-  }
+  handleValidation(res, error);
+
+  const isUserExist = await helper.verifyUserExist(userId, prisma)
+  handleValidation(res, isUserExist);
 
   try {
     const education = await prisma.education.create({
