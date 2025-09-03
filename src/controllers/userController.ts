@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import { validateEmptyStrings, validateEmail } from '../domain/user/userValidator';
-import * as userService from '../domain/user/userService';
+import { userService, userValidator } from '@domain/user';
+
 
 
 
@@ -10,13 +10,13 @@ export const createUserHandler = async (
 ): Promise<void> => {
   const { email, username, password } = req.body;
 
-  const emptyCheck = validateEmptyStrings({ email, username, password });
+  const emptyCheck = userValidator.validateEmptyStrings({ email, username, password });
   if (!emptyCheck.success) {
     res.status(400).json({ error: emptyCheck.message });
     return;
   }
 
-  const emailCheck = validateEmail(email);
+  const emailCheck = userValidator.validateEmail(email);
   if (!emailCheck.success) {
     res.status(400).json({ error: emailCheck.message });
     return;
