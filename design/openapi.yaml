@@ -1,0 +1,68 @@
+openapi: 3.1.0
+info:
+  title: Academia API
+  version: 1.0.0
+  description: Eğitim ve kullanıcı kayıt API'si
+
+paths:
+  /users:
+    post:
+      summary: Yeni kullanıcı oluştur
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCreate'
+      responses:
+        '201':
+          description: Kullanıcı başarıyla oluşturuldu
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Hatalı istek (eksik parametre vs.)
+    get:
+      summary: Tüm kullanıcıları getir
+      tags:
+        - Users
+      responses:
+        '200':
+          description: Kullanıcı listesi
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        
+
+components:
+  schemas:
+    UserCreate:
+      type: object
+      required:
+        - email
+        - username
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+        username:
+          type: string
+        password:
+          type: string
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        email:
+          type: string
+        username:
+          type: string
