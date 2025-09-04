@@ -1,38 +1,33 @@
 import { Request, Response } from 'express';
 import { userService, userValidator } from '@domain/user';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
 
 
+const handleValidation = (res: Response, result: { error: string } | null) => {
+  if (result) {
+    return res.status(400).json(result);
+  }
+};
 
-
-export const createUserHandler = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
+export const createUserHandler = async (req: Request, res: Response) => {
   const { email, username, password } = req.body;
 
   const emptyCheck = userValidator.validateEmptyStrings({ email, username, password });
-  if (!emptyCheck.success) {
-    res.status(400).json({ error: emptyCheck.message });
-    return;
-  }
+  if (handleValidation(res, emptyCheck)) return;
 
   const emailCheck = userValidator.validateEmail(email);
-  if (!emailCheck.success) {
-    res.status(400).json({ error: emailCheck.message });
-    return;
-  }
+  if (handleValidation(res, emailCheck)) return;
 
-  const exists = await userService.checkUserExists(email);
-  if (!exists.success) {
-    res.status(400).json({ error: exists.message });
-    return;
-  }
+  const userExist = await userService.verifyExistUser(email, username, prisma);
+  if (handleValidation(res, userExist)) return;
 
   try {
-    const user = await userService.createUser(email, username, password);
+    const user = await userService.createUser(email, username, password, prisma);
     res.status(201).json(user);
   } catch (error) {
-    res.status(500).json({ error: 'Kullanıcı oluşturulamadı', details: error });
+    res.status(500).json({ error: 'Kullanıcı oluşturulamadı.', details: error });
   }
 };
 

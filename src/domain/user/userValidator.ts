@@ -1,16 +1,18 @@
-export const validateEmptyStrings = (fields: Record<string, string>) => {
-    for (const key in fields) {
-      if (!fields[key] || fields[key].trim() === '') {
-        return { success: false, message: `${key} boş olamaz` };
-      }
+export const validateEmptyStrings = (fields: {
+  [key: string]: string;
+}): { error: string } | null => {
+  for (const [key, value] of Object.entries(fields)) {
+    if (!value || value.trim() === "") {
+      return { error: `${key} alanı boş olamaz!` };
     }
-    return { success: true };
-  };
-  
-  export const validateEmail = (email: string) => {
-    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return regex.test(email)
-      ? { success: true }
-      : { success: false, message: 'Email formatı geçersiz' };
-  };
-  
+  }
+  return null;
+};
+
+export const validateEmail = (email: string): { error: string } | null => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    return { error: `'${email}' geçerli bir email formatı değil.` };
+  }
+  return null;
+};

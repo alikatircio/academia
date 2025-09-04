@@ -2,22 +2,39 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-export const checkUserExists = async (email: string) => {
-  const user = await prisma.user.findUnique({
-    where: { email },
-  });
+export const verifyExistUser = async (
+  email: string,
+  username: string,
+  prisma: PrismaClient
+) => {
+  const existingEmail = await prisma.user.findFirst({ where: { email } });
+  if (existingEmail) {
+    return { error: `${email} zaten kayıtlı.` };
+  }
 
-  return user
-    ? { success: false, message: 'Bu email zaten kayıtlı' }
-    : { success: true };
+  const existingUsername = await prisma.user.findFirst({ where: { username } });
+  if (existingUsername) {
+    return { error: `${username} kullanıcı adı zaten kullanımda.` };
+  }
+
+  return null;
 };
 
-export const createUser = async (email: string, username: string, password: string) => {
-  const user = await prisma.user.create({
-    data: { email, username, password },
+export const createUser = async (
+  email: string,
+  username: string,
+  password: string,
+  prisma: PrismaClient
+) => {
+  return prisma.user.create({
+    data: {
+      email,
+      username,
+      password,
+    },
   });
-  return user;
 };
+
 
 export const getAllUsers = async () => {
     const users = await prisma.user.findMany();
@@ -35,4 +52,7 @@ export const getUserById = async (id: number) => {
 
   return user;
 };
+
+
+
 
