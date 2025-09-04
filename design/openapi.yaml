@@ -38,6 +38,116 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/User'
+  /users/{id}:
+    get:
+      summary: ID ile kullanıcıyı getir
+      tags:
+        - Users
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Kullanıcı bulundu
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: Kullanıcı bulunamadı
+  /education:
+    post:
+      summary: Create a new education entry for a user
+      tags:
+        - Education
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EducationCreate'
+      responses:
+        '201':
+          description: Education created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Education'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                  details:
+                    type: object
+  /education/{id}:
+    get:
+      summary: Get education by ID
+      tags:
+        - Education
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the education record to fetch
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Education found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Education'
+        '404':
+          description: Education not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string  
+  /education:
+    get:
+      summary: Belirli bir kullanıcıya ait eğitim kayıtlarını getir
+      tags:
+        - Education
+      parameters:
+        - name: userId
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Eğitim kayıtları bulundu
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Education'
+        '400':
+          description: Geçersiz userId
+        '500':
+          description: Sunucu hatası                  
         
 
 components:
@@ -66,3 +176,45 @@ components:
           type: string
         username:
           type: string
+          
+    EducationCreate:
+      type: object
+      required:
+        - type
+        - city
+        - year
+        - userId
+      properties:
+        type:
+          type: string
+          enum: [ILK_OKUL, ORTA_OKUL, LISE, UNI]
+          description: Eğitim tipi (İlkokul, Ortaokul, Lise, Üniversite)
+        city:
+          type: string
+        department:
+          type: string
+          nullable: true
+        year:
+          type: integer
+        userId:
+          type: integer
+
+    Education:
+      type: object
+      properties:
+        id:
+          type: integer
+        type:
+          type: string
+          enum: [ILK_OKUL, ORTA_OKUL, LISE, UNI]
+        city:
+          type: string
+        department:
+          type: string
+          nullable: true
+        year:
+          type: integer
+        userId:
+          type: integer
+
+   

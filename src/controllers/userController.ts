@@ -47,3 +47,25 @@ export const getAllUsersHandler = async (
         res.status(500).json({ error: 'Kullanıcılar getirilemedi', details: error });
     }
 }
+
+export const getUserByIdHandler = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  const userId = Number(req.params.id);
+
+  if (isNaN(userId)) {
+    res.status(400).json({ error: 'Geçersiz kullanıcı ID' });
+    return;
+  }
+
+  const user = await userService.getUserById(userId);
+
+  if (!user) {
+    res.status(404).json({ error: 'Kullanıcı bulunamadı' });
+    return;
+  }
+
+  res.status(200).json(user);
+};
+
