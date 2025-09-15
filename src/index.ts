@@ -10,9 +10,13 @@ app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 import userRoutes from '@routes/userRoutes';
 import educationRoutes from '@routes/educationRoutes';
+import authRoutes from '@routes/authRoutes';
+
 
 app.use('/users', userRoutes);
 app.use('/education', educationRoutes);
+app.use("/auth", authRoutes);
+
 
 
 app.listen(3000, () => {
